@@ -1,6 +1,6 @@
 package com.example.mss.exception;
 
-import com.example.abs.common.ResponseCode;
+import com.example.mss.common.ResponseCode;
 import lombok.Getter;
 
 /**

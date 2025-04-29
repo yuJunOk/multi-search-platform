@@ -1,6 +1,6 @@
 package com.example.mss.exception;
 
-import com.example.abs.common.ResponseEntity;
+import com.example.mss.common.ResponseEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
