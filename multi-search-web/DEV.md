@@ -31,3 +31,11 @@ import "ant-design-vue/dist/reset.css";
 createApp(App).use(Antd).use(router).mount("#app");
 ```
 
+3. 安装axios
+
+官网：[Axios中文文档 | Axios中文网](https://www.axios-http.cn/)
+
+```
+npm install axios
+```
+
