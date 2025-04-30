@@ -5,10 +5,11 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
+/** 注册模式
  * @author pengYuJun
  */
 @Component
@@ -27,11 +28,12 @@ public class DataSourceRegistry {
 
     @PostConstruct
     public void doInit() {
-        typeDataSourceMap = new HashMap<>() {{
+        HashMap<String, DataSource<?>> hashMap = new HashMap<>(3) {{
             put(SearchTypeEnum.POST.getValue(), postDataSource);
             put(SearchTypeEnum.USER.getValue(), userDataSource);
             put(SearchTypeEnum.PICTURE.getValue(), pictureDataSource);
         }};
+        typeDataSourceMap = Collections.unmodifiableMap(hashMap);
     }
 
     public DataSource<?> getDataSourceByType(String type) {
