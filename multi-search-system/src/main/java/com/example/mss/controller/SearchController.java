@@ -7,6 +7,7 @@ import com.example.mss.pojo.dto.PageDto;
 import com.example.mss.pojo.dto.post.PostQueryPageDto;
 import com.example.mss.pojo.dto.search.SearchDto;
 import com.example.mss.pojo.dto.user.UserDto;
+import com.example.mss.pojo.enums.SearchTypeEnum;
 import com.example.mss.pojo.vo.PictureVo;
 import com.example.mss.pojo.vo.PostVo;
 import com.example.mss.pojo.vo.SearchVo;
@@ -39,26 +40,53 @@ public class SearchController {
 
     @PostMapping("all")
     public ResponseEntity<SearchVo> searchAll(@RequestBody SearchDto searchDto, HttpServletRequest request) {
-        Page<PictureVo> pictureVoPage = pictureService.searchPicture(searchDto.getSearchText(), searchDto.getCurrent(), searchDto.getPageSize());
-
-        PageDto pageDto = new PageDto();
-        pageDto.setCurrent(searchDto.getCurrent());
-        pageDto.setPageSize(searchDto.getPageSize());
-        UserDto userDto = new UserDto();
-        userDto.setUserName(searchDto.getSearchText());
-        Page<UserVo> userVoPage = userService.searchUser(userDto, pageDto);
-
-        PostQueryPageDto postQueryPageDto = new PostQueryPageDto();
-        postQueryPageDto.setCurrent(searchDto.getCurrent());
-        postQueryPageDto.setPageSize(searchDto.getPageSize());
-        postQueryPageDto.setSearchText(searchDto.getSearchText());
-        Page<PostVo> postVoPage = postService.listPostVoByPage(postQueryPageDto, request);
-
         SearchVo searchVo = new SearchVo();
-        searchVo.setUserList(userVoPage.getRecords());
-        searchVo.setPostList(postVoPage.getRecords());
-        searchVo.setPictureList(pictureVoPage.getRecords());
 
+        SearchTypeEnum searchTypeEnum = SearchTypeEnum.getEnumByValue(searchDto.getType());
+        if (searchTypeEnum == null) {
+            Page<PictureVo> pictureVoPage = pictureService.searchPicture(searchDto.getSearchText(), searchDto.getCurrent(), searchDto.getPageSize());
+            searchVo.setPictureList(pictureVoPage.getRecords());
+
+            PageDto pageDto = new PageDto();
+            pageDto.setCurrent(searchDto.getCurrent());
+            pageDto.setPageSize(searchDto.getPageSize());
+            UserDto userDto = new UserDto();
+            userDto.setUserName(searchDto.getSearchText());
+            Page<UserVo> userVoPage = userService.searchUser(userDto, pageDto);
+            searchVo.setUserList(userVoPage.getRecords());
+
+            PostQueryPageDto postQueryPageDto = new PostQueryPageDto();
+            postQueryPageDto.setCurrent(searchDto.getCurrent());
+            postQueryPageDto.setPageSize(searchDto.getPageSize());
+            postQueryPageDto.setSearchText(searchDto.getSearchText());
+            Page<PostVo> postVoPage = postService.listPostVoByPage(postQueryPageDto, request);
+            searchVo.setPostList(postVoPage.getRecords());
+        }else {
+            switch (searchTypeEnum) {
+                case PICTURE -> {
+                    Page<PictureVo> pictureVoPage = pictureService.searchPicture(searchDto.getSearchText(), searchDto.getCurrent(), searchDto.getPageSize());
+                    searchVo.setPictureList(pictureVoPage.getRecords());
+                }
+                case USER -> {
+                    PageDto pageDto = new PageDto();
+                    pageDto.setCurrent(searchDto.getCurrent());
+                    pageDto.setPageSize(searchDto.getPageSize());
+                    UserDto userDto = new UserDto();
+                    userDto.setUserName(searchDto.getSearchText());
+                    Page<UserVo> userVoPage = userService.searchUser(userDto, pageDto);
+                    searchVo.setUserList(userVoPage.getRecords());
+                }
+                case POST -> {
+                    PostQueryPageDto postQueryPageDto = new PostQueryPageDto();
+                    postQueryPageDto.setCurrent(searchDto.getCurrent());
+                    postQueryPageDto.setPageSize(searchDto.getPageSize());
+                    postQueryPageDto.setSearchText(searchDto.getSearchText());
+                    Page<PostVo> postVoPage = postService.listPostVoByPage(postQueryPageDto, request);
+                    searchVo.setPostList(postVoPage.getRecords());
+                }
+                default -> {}
+            }
+        }
         return ResponseEntity.success(searchVo);
     }
 
