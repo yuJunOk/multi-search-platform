@@ -18,7 +18,7 @@ public class SearchController {
     @Resource
     private SearchFacade searchFacade;
 
-    @GetMapping("all")
+    @PostMapping("all")
     public ResponseEntity<SearchVo> searchAll(@RequestBody SearchDto searchDto, HttpServletRequest request) {
         return ResponseEntity.success(searchFacade.searchAll(searchDto, request));
     }
