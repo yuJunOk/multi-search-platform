@@ -1,6 +1,6 @@
 package com.example.mss.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.mss.pojo.domain.UserDo;
 import com.example.mss.pojo.dto.PageDto;
@@ -47,7 +47,7 @@ public interface UserService extends IService<UserDo> {
      * @param pageDto
      * @return
      */
-    IPage<UserVo> searchUser(UserDto userDto, PageDto pageDto);
+    Page<UserVo> searchUser(UserDto userDto, PageDto pageDto);
 
     /**
      *
@@ -69,6 +69,13 @@ public interface UserService extends IService<UserDo> {
      * @return
      */
     UserVo getCurrentUser(HttpServletRequest request);
+
+    /**
+     * 获取当前登录用户信息 （允许未登录）
+     * @param request
+     * @return
+     */
+    UserVo getCurrentUserPermitNull(HttpServletRequest request);
 
     /**
      * 是否为管理员

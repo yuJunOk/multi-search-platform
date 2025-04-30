@@ -149,8 +149,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDo>
     }
 
     @Override
-    public IPage<UserVo> searchUser(UserDto userDto, PageDto pageDto) {
-        IPage<UserVo> userPage = new Page<>(pageDto.getCurrent(), pageDto.getPageSize());
+    public Page<UserVo> searchUser(UserDto userDto, PageDto pageDto) {
+        Page<UserVo> userPage = new Page<>(pageDto.getCurrent(), pageDto.getPageSize());
         // 筛选
         LambdaQueryWrapper<UserDo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.like(StringUtils.hasText(userDto.getUserName()), UserDo::getUserName, userDto.getUserName());
@@ -233,6 +233,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDo>
             return userVo;
         }catch (Exception e){
             throw new BusinessException(ResponseCode.UNAUTHORIZED);
+        }
+    }
+
+    @Override
+    public UserVo getCurrentUserPermitNull(HttpServletRequest request) {
+        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        UserVo currentUser = (UserVo) userObj;
+        // 再查询，用户数据是否有效
+        // todo: 校验用户是否合法
+        if (currentUser != null && currentUser.getId() != null){
+            Long userId = currentUser.getId();
+            UserDo userDo = this.getById(userId);
+            UserVo userVo = new UserVo();
+            BeanUtils.copyProperties(userDo, userVo);
+            return userVo;
+        }else {
+            return null;
         }
     }
 
