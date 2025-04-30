@@ -29,6 +29,7 @@ import UserList from "@/components/UserList.vue";
 import { ref, watchEffect } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { message } from "ant-design-vue";
+import myAxios from "@/plugins/myAxios";
 
 const postList = ref([]);
 const userList = ref([]);
@@ -43,7 +44,7 @@ const searchText = ref(route.query.text || "");
 const initSearchParams = {
   text: "",
   pageSize: 10,
-  pageNum: 1,
+  current: 1,
 };
 const searchParams = ref(initSearchParams);
 const onSearch = (value: string) => {
@@ -76,12 +77,22 @@ const loadData = (params: any) => {
     ...params,
     searchText: params.text,
   };
+  myAxios.post("search/all", query).then((res: any) => {
+    if (type === "post") {
+      postList.value = res.postList;
+    } else if (type === "user") {
+      userList.value = res.userList;
+    } else if (type === "picture") {
+      pictureList.value = res.pictureList;
+    }
+  });
 };
 
 watchEffect(() => {
   searchParams.value = {
     ...initSearchParams,
     text: route.query.text,
+    type: route.params.category ?? "post",
   } as any;
   loadData(searchParams.value);
 });
