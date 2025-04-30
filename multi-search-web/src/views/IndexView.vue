@@ -89,9 +89,12 @@ const loadData = (params: any) => {
 };
 
 watchEffect(() => {
-  loadData({
+  searchParams.value = {
     ...initSearchParams,
     text: route.query.text,
+  } as any;
+  loadData({
+    ...searchParams.value,
     type: route.params.category ?? "post",
   });
 });
