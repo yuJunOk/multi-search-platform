@@ -21,4 +21,10 @@
         id,title,content,tags,thumb_num,favour_num,
         user_id,create_time,update_time,deleted
     </sql>
+
+    <select id="listPostWithDelete" resultMap="BaseResultMap">
+        select *
+        from post
+        where updateTime >= #{minUpdateTime}
+    </select>
 </mapper>

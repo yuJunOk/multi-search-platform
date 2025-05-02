@@ -13,6 +13,14 @@ import jakarta.servlet.http.HttpServletRequest;
 * @createDate 2025-04-30 14:30:29
 */
 public interface PostService extends IService<PostDo> {
+
+    /**
+     *
+     * @param postQueryPageDto
+     * @return
+     */
+    Page<PostVo> searchFromEs(PostQueryPageDto postQueryPageDto);
+
     /**
      * 分页查询帖子
      * @param postQueryPageDto

@@ -55,7 +55,9 @@ public class PostDataSource implements DataSource<PostVo> {
         ServletRequestAttributes servletRequestAttributes =  (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = servletRequestAttributes.getRequest();
 
-        return postService.listPostVoByPage(postQueryRequest, request);
+        // return postService.listPostVoByPage(postQueryRequest, request);
+
+        return postService.searchFromEs(postQueryRequest);
     }
 }
 

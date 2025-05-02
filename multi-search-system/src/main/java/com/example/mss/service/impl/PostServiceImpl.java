@@ -1,19 +1,20 @@
 package com.example.mss.service.impl;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.mss.constant.CommonConstant;
+import com.example.mss.esdao.PostEsDao;
 import com.example.mss.mapper.PostFavourMapper;
 import com.example.mss.mapper.PostThumbMapper;
 import com.example.mss.pojo.domain.PostDo;
 import com.example.mss.pojo.domain.PostFavourDo;
 import com.example.mss.pojo.domain.PostThumbDo;
 import com.example.mss.pojo.domain.UserDo;
-import com.example.mss.pojo.dto.post.PostQueryDto;
+import com.example.mss.pojo.dto.post.PostEsDto;
 import com.example.mss.pojo.dto.post.PostQueryPageDto;
-import com.example.mss.pojo.dto.user.UserDto;
 import com.example.mss.pojo.vo.PostVo;
 import com.example.mss.pojo.vo.UserVo;
 import com.example.mss.service.PostService;
@@ -22,15 +23,15 @@ import com.example.mss.service.UserService;
 import com.example.mss.utils.SqlUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -39,6 +40,7 @@ import java.util.stream.Collectors;
 * @createDate 2025-04-30 14:30:29
 */
 @Service
+@Slf4j
 public class PostServiceImpl extends ServiceImpl<PostMapper, PostDo>
     implements PostService{
 
@@ -50,6 +52,38 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, PostDo>
 
     @Resource
     private PostFavourMapper postFavourMapper;
+
+    @Resource
+    private PostEsDao postEsDao;
+
+    @Override
+    public Page<PostVo> searchFromEs(PostQueryPageDto postQueryPageDto) {
+        // TODO: 在使用springboot3时候引入 spring-boot-starter-data-elasticsearch，无法使用BoolQueryBuilder和 ElasticsearchRestTemplate
+        //https://docs.spring.io/spring-data/elasticsearch/reference/migration-guides.html 弃用了，es 哥更新太快，建议还是用 boot 2.x
+        long current = Optional.ofNullable(postQueryPageDto.getCurrent()).orElse(1L);
+        if (current > 0){
+            // es分页从0开始
+            current--;
+        }
+        long pageSize = Optional.ofNullable(postQueryPageDto.getPageSize()).orElse(10L);
+        Pageable pageable = PageRequest.of(Math.toIntExact(current), Math.toIntExact(pageSize));
+        String searchText = postQueryPageDto.getSearchText();
+        org.springframework.data.domain.Page<PostEsDto> postEsDtoPage;
+        if (StringUtils.isEmpty(searchText)){
+            postEsDtoPage = postEsDao.findAll(pageable);
+        }else {
+            postEsDtoPage = postEsDao.searchByTitleOrContent(searchText, pageable);
+        }
+        List<PostEsDto> list = postEsDtoPage.stream().toList();
+        Page<PostVo> postPage = new Page<>(current, pageSize, postEsDtoPage.getTotalElements());
+        List<PostVo> postDoList = list.stream().map(dto -> {
+            PostVo postVo = new PostVo();
+            BeanUtils.copyProperties(dto, postVo);
+            return postVo;
+        }).toList();
+        postPage.setRecords(postDoList);
+        return postPage;
+    }
 
     @Override
     public Page<PostVo> listPostVoByPage(PostQueryPageDto postQueryPageDto, HttpServletRequest request) {
