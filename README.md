@@ -29,12 +29,12 @@
 
 文章搜索
 
-![文章搜索](/doc/images/文章搜索.png)
+![文章搜索](doc/images/文章搜索.png)
 
 图片搜索
 
-![图片搜索](/doc/images/图片搜索.png)
+![图片搜索](doc/images/图片搜索.png)
 
 用户搜索
 
-![用户搜索](/doc/images/用户搜索.png)
+![用户搜索](doc/images/用户搜索.png)
